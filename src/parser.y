@@ -22,7 +22,10 @@ int isBool(int);
 /*int args_stack[STACK_SIZE];*/
 
 int base_ptr = 0;
+int num_data = 0;
 int num_args = 0;
+int num_OP(int, int, char *);
+int logic_OP(int, int, char *);
 
 int check_type(char *);
 void dump_stack();
@@ -39,17 +42,17 @@ char *str;
 %token <str> BOOL INUM 
 
 %type <str> EXP NUM-OP PLUS MINUS MULTIPLY DIVIDE MODULUS GREATER SMALLER EQUAL VAR FUN-EXP FUN-CALL if-EXP
-%type <str> LOGICAL-OP and-OP or-OP not-OP
+%type <str> PROGRAM STMTs STMT PRINT-STMT DEF-STMT LOGICAL-OP and-OP or-OP not-OP
 
 %nonassoc LPAREN RPAREN
 %%
-PROGRAM : STMTs ;
-STMTs   : STMT STMTs | STMT ;
-STMT    : EXP 
-        | DEF-STMT
-        | PRINT-STMT ;
+PROGRAM : STMTs  { $$ = $1; } ;
+STMTs   : STMT STMTs { $$ = $1; } | STMT { $$ = $1; } ;
+STMT    : EXP { $$ = $1; }
+        | DEF-STMT { $$ = $1; }
+        | PRINT-STMT { $$ = $1; } ;
 PRINT-STMT  : LPAREN print_num EXP RPAREN {
-
+    $$ = $3;
     if(check_type("number") == 1) { /* type correct */
         int tmp = pop();
         printf("%d\n", tmp);
@@ -58,7 +61,7 @@ PRINT-STMT  : LPAREN print_num EXP RPAREN {
     }
 }
             | LPAREN print_bool EXP RPAREN {
-
+    $$ = $3;
     if(check_type("boolean") == 1) { /* type correct */
         char * bool;
         int tmp = pop();
@@ -77,7 +80,7 @@ EXP     : INUM {
     $$ = $1;
     int num = atoi($1);
     push(num, 0);
-    
+    num_data++;
 }       | BOOL {
     $$ = $1;
     if(strcmp($1, "#t") == 0) {
@@ -85,7 +88,7 @@ EXP     : INUM {
     } else {
         push(0, 1);
     }
-
+    num_data++;
 }       | VAR | NUM-OP { $$ = $1; } | LOGICAL-OP {} | FUN-EXP {} | FUN-CALL {} | if-EXP {} ;
 EXPs    : EXP EXPs {
     
@@ -96,35 +99,45 @@ EXPs    : EXP EXPs {
 NUM-OP  : PLUS { $$ = $1; } | MINUS { $$ = $1; } | MULTIPLY { $$ = $1; } | DIVIDE { $$ = $1; } | MODULUS { $$ = $1; } 
         | GREATER { $$ = $1; } | SMALLER { $$ = $1; } | EQUAL { $$ = $1; } ;
 
-PLUS    : LPAREN { base_ptr = stack.top; } ADD EXP EXPs RPAREN {
+PLUS    : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } ADD EXP EXPs RPAREN {
     $$ = "PLUS";
-    num_args = stack.top - base_ptr;
+    /*num_args = stack.top - base_ptr;
     int result = 0;
     for(int i=0; i<num_args; i++) {
         if(check_type("number") == 1) {
             result += pop();
-        } else {    /* type error */
+        } else {
             printf("Expect 'number' but got 'boolean'\n");
         }
-    }
+    }*/
+
+    int result = num_OP(stack.top, base_ptr, "PLUS");
+    base_ptr = pop();
     push(result, 0);
-    dump_stack();
 }          ;
-MINUS   : LPAREN SUB EXP EXP RPAREN {
+MINUS   : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } SUB EXP EXP RPAREN {
     $$ = "MINUS";
-
+    int result = num_OP(stack.top, base_ptr, "MINUS");
+    base_ptr = pop();
+    push(result, 0);
 }          ;
-MULTIPLY   : LPAREN MUL EXP EXPs RPAREN {
+MULTIPLY   : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } MUL EXP EXPs RPAREN {
     $$ = "MULTIPLY";
-
+    int result = num_OP(stack.top, base_ptr, "MULTIPLY");
+    base_ptr = pop();
+    push(result, 0);
 }          ;
-DIVIDE     : LPAREN DIV EXP EXP RPAREN {
+DIVIDE     : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } DIV EXP EXP RPAREN {
     $$ = "DIVIDE";
-
+    int result = num_OP(stack.top, base_ptr, "DIVIDE");
+    base_ptr = pop();
+    push(result, 0);
 }          ;
-MODULUS    : LPAREN MOD EXP EXP RPAREN {
+MODULUS    : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } MOD EXP EXP RPAREN {
     $$ = "MODULUS";
-
+    int result = num_OP(stack.top, base_ptr, "MODULUS");
+    base_ptr = pop();
+    push(result, 0);
 }          ;
 GREATER    : LPAREN GRT EXP EXP RPAREN {
     $$ = "GREATER";
@@ -273,6 +286,47 @@ int isBool(int index) {
     }
 }
 
+int num_OP(int stack_p, int base_p, char *operator) {
+    num_args = stack_p - base_p;
+    int result = 0, tmp = 0;
+    if(operator == "MULTIPLY")
+        result = 1;
+    if(operator == "MINUS" || operator == "DIVIDE" || operator == "MODULUS" ) {
+        if(check_type("number") == 1)
+            tmp = pop();
+        else
+            printf("Expect 'number' but got 'boolean'\n");
+        if(check_type("number") == 1)
+            result = pop();
+        else
+            printf("Expect 'number' but got 'boolean'\n");
+        
+        if(operator == "MINUS")
+            result = result - tmp;
+        else if(operator == "DIVIDE")
+            result = result / tmp;
+        else if(operator == "MODULUS")
+            result = result % tmp;
+        return result;
+    }
+
+    for(int i=0; i<num_args; i++) {
+        if(check_type("number") == 1) {
+            if(operator == "PLUS")
+                result += pop();
+            else if(operator == "MULTIPLY")
+                result *= pop();
+            
+        } else {    /* type error */
+            printf("Expect 'number' but got 'boolean'\n");
+        }
+    }
+    return result;
+}
+int logic_OP(int stack_p, int base_p, char *operator) {
+
+}
+
 int check_type(char *str) {
     if(strcmp(str,"boolean") == 0) {
         if(isBool(stack.top -1) == 1) { /* type correct */
@@ -292,7 +346,8 @@ int check_type(char *str) {
 }
 
 int main(int argc, char *argv[]) {
-    yyparse();
+    int i = yyparse();
+    //printf("returned value of yyparse() is %d\n", i);
     return(0);
 }
 
