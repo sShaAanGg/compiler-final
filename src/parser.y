@@ -145,17 +145,23 @@ EQUAL      : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } EQL EXP EXPs RP
 }          ;
 
 LOGICAL-OP : and-OP { $$ = $1; } | or-OP { $$ = $1; } | not-OP { $$ = $1; } ;
-and-OP  : LPAREN AND EXP EXPs RPAREN {
+and-OP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } AND EXP EXPs RPAREN {
     $$ = "and-OP";
-
+    int result = logic_OP(stack.top, base_ptr, "AND");
+    base_ptr = pop();
+    push(result, 1);
 }       ;
-or-OP   : LPAREN OR EXP EXPs RPAREN {
+or-OP   : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } OR EXP EXPs RPAREN {
     $$ = "or-OP";
-
+    int result = logic_OP(stack.top, base_ptr, "OR");
+    base_ptr = pop();
+    push(result, 1);
 }       ;
-not-OP  : LPAREN NOT EXP RPAREN {
+not-OP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } NOT EXP RPAREN {
     $$ = "not-OP";
-
+    int result = logic_OP(stack.top, base_ptr, "NOT");
+    base_ptr = pop();
+    push(result, 1);
 }       ;
 
 DEF-STMT : LPAREN define ID EXP RPAREN {
@@ -232,7 +238,7 @@ void push(int i, int bool_flag) {   /* i is either INUM or BOOL, which depends o
             stack.arr[stack.top] = i;
             stack.top++;
         } else {
-            stack.arr_bool_flag[stack.top] == 0;
+            stack.arr_bool_flag[stack.top] = 0;
             stack.arr[stack.top] = i;
             stack.top++;
         }
@@ -285,17 +291,18 @@ int num_OP(int stack_p, int base_p, char *operator) {
         result = 1;
     else if(operator == "EQUAL")
         result = stack.arr[stack.top - 1];
+
     if(operator == "MINUS" || operator == "DIVIDE" || operator == "MODULUS" || operator == "GREATER" || operator == "SMALLER") {
         if(check_type("number") == 1)
             tmp = pop();
         else {
-            printf("Expect 'number' but got 'boolean'\n");
+            printf("Type Error: Expect 'number' but got 'boolean'.\n");
             return -1;
         }
         if(check_type("number") == 1)
             result = pop();
         else {
-            printf("Expect 'number' but got 'boolean'\n");
+            printf("Type Error: Expect 'number' but got 'boolean'.\n");
             return -1;
         }
         
@@ -327,11 +334,13 @@ int num_OP(int stack_p, int base_p, char *operator) {
             else if(operator == "MULTIPLY")
                 result *= pop();
             else if(operator == "EQUAL") {
-                if(result != pop())
+                if(result != pop()) {
                     tmp = 0;
+                    break;
+                }
             }
         } else {    /* type error */
-            printf("Expect 'number' but got 'boolean'\n");
+            printf("Type Error: Expect 'number' but got 'boolean'.\n");
             return -1;
         }
     }
@@ -340,8 +349,49 @@ int num_OP(int stack_p, int base_p, char *operator) {
     else
         return result;
 }
-int logic_OP(int stack_p, int base_p, char *operator) {
 
+int logic_OP(int stack_p, int base_p, char *operator) {
+    int num_args = stack_p - base_p;
+    int result = 0, tmp = 0;
+    
+    if(operator == "NOT") {
+        if(check_type("boolean") == 1) { /* type correct */
+            if(pop() == 1)
+                result = 0;
+            else /* pop() == 0 */
+                result = 1;
+        } else {
+            printf("Expect 'boolean' but got 'number'\n");
+            return -1;
+        }
+        return result;
+
+    } else if(operator == "AND") {
+        result = 1;
+    } else if(operator == "OR") {
+        result = 0;
+    }
+
+    for(int i=0; i<num_args; i++) {
+        if(check_type("boolean") == 1) {
+            if(operator == "AND") {
+                if(pop() == 0) {
+                    result = 0;
+                    break;
+                }
+            }
+            else if(operator == "OR") {
+                if(pop() == 1) {
+                    result = 1;
+                    break;
+                }
+            }
+        } else {    /* type error */
+            printf("Expect 'boolean' but got 'number'\n");
+            return -1;
+        }
+    }
+    return result;
 }
 
 int check_type(char *str) {
