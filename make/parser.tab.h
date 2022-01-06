@@ -79,9 +79,10 @@ union YYSTYPE
 {
 #line 30 "./src/parser.y"
 
+int ival;
 char *str;
 
-#line 85 "./make/parser.tab.h"
+#line 86 "./make/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

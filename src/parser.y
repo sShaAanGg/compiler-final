@@ -28,6 +28,7 @@ void dump_stack();
 %}
 
 %union{
+int ival;
 char *str;
 }
 
@@ -37,8 +38,9 @@ char *str;
 %token <str> ADD SUB MUL DIV MOD GRT SML EQL AND OR NOT 
 %token <str> BOOL INUM 
 
-%type <str> EXP NUM-OP PLUS MINUS MULTIPLY DIVIDE MODULUS GREATER SMALLER EQUAL VAR FUN-EXP FUN-CALL if-EXP
+%type <str> EXP NUM-OP PLUS MINUS MULTIPLY DIVIDE MODULUS GREATER SMALLER EQUAL VAR FUN-EXP FUN-CALL if-EXP TEST-EXP
 %type <str> PROGRAM STMTs STMT PRINT-STMT DEF-STMT LOGICAL-OP and-OP or-OP not-OP
+%type <ival> THEN-EXP ELSE-EXP
 
 %nonassoc LPAREN RPAREN
 %%
@@ -198,17 +200,50 @@ FUN-NAME : ID {
 
 }       ;
 
-if-EXP  : LPAREN IF TEST-EXP THEN-EXP ELSE-EXP RPAREN {
-
+if-EXP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } IF TEST-EXP THEN-EXP ELSE-EXP RPAREN {
+    int isElse_exp_bool = pop();
+    int isThen_exp_bool = pop();
+    int test_exp_val = pop();
+    base_ptr = pop();
+    if(test_exp_val) {
+        if(isThen_exp_bool == 1)
+            push($5, 1);
+        else
+            push($5, 0);
+    } else {
+        if(isElse_exp_bool == 1)
+            push($6, 1);
+        else
+            push($6, 0);
+    }
 }        ;
 TEST-EXP : EXP {
-
+    if(isBool(stack.top - 1)) 
+        ;
+    else {
+        printf("Type Error: Expect 'boolean' from TEST-EXP but got 'number'.\n");
+        return -1;
+    }
 }        ;
 THEN-EXP : EXP {
-
+    if(isBool(stack.top - 1)) {
+        $$ = pop();
+        push(1, 1);
+    }
+    else {
+        $$ = pop();
+        push(0, 1);
+    }
 }        ;
 ELSE-EXP : EXP {
-
+    if(isBool(stack.top - 1)) {
+        $$ = pop();
+        push(1, 1);
+    }
+    else {
+        $$ = pop();
+        push(0, 1);
+    }
 }        ;
 
 %%
