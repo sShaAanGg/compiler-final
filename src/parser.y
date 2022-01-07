@@ -19,6 +19,15 @@ int isEmpty();
 int isFull();
 int isBool(int);
 
+struct identifier {
+    int num_id;
+    char* id_arr[STACK_SIZE];
+    int* val_ptr_arr[STACK_SIZE];
+    int val_bool_flag[STACK_SIZE];
+};
+struct identifier identifier;
+int find_id_index(char *);
+
 int base_ptr = 0;
 int num_OP(int, int, char *);
 int logic_OP(int, int, char *);
@@ -86,8 +95,15 @@ EXP     : INUM {
     } else {
         push(0, 1);
     }
-    
-}       | VAR | NUM-OP { $$ = $1; } | LOGICAL-OP {} | FUN-EXP {} | FUN-CALL {} | if-EXP {} ;
+}       | VAR {
+    $$ = $1;
+    int index = find_id_index($1);
+    if(identifier.val_bool_flag[index]) {
+        push(* identifier.val_ptr_arr[index], 1);
+    } else {
+        push(* identifier.val_ptr_arr[index], 0);
+    }
+}       | NUM-OP { $$ = $1; } | LOGICAL-OP { $$ = $1; } | FUN-EXP {} | FUN-CALL {} | if-EXP {} ;
 EXPs    : EXP EXPs {
     
 }       | EXP {
@@ -167,10 +183,25 @@ not-OP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } NOT EXP RPAREN {
 }       ;
 
 DEF-STMT : LPAREN define ID EXP RPAREN {
-
+    char* id_str = (char *) malloc(sizeof(char) * STACK_SIZE);
+    id_str = $3;
+    identifier.id_arr[identifier.num_id] = id_str;
+    if(isBool(stack.top - 1)) {
+        int* bool = (int *) malloc(sizeof(int));
+        *bool = pop();
+        identifier.val_ptr_arr[identifier.num_id] = bool;
+        identifier.val_bool_flag[identifier.num_id] = 1;
+    } else {
+        int* num = (int *) malloc(sizeof(int));
+        *num = pop();
+        identifier.val_ptr_arr[identifier.num_id] = num;
+        identifier.val_bool_flag[identifier.num_id] = 0;
+    }
+    identifier.num_id++;
+    $$ = $3;
 }       ;
 VAR     : ID {
-
+    $$ = $1;
 }       ;
 
 FUN-EXP : LPAREN fun FUN-IDs FUN-BODY RPAREN {
@@ -251,19 +282,14 @@ ELSE-EXP : EXP {
 void yyerror (const char *message) {
     fprintf (stderr, "%s\n",message);
 }
-int reserve_check(char *id_str) {
-    int syntax_err = 0;
-    if(strcmp(id_str, "mod") == 0 || strcmp(id_str, "and") == 0 || strcmp(id_str, "or") == 0 || strcmp(id_str, "not") == 0) {
-        syntax_err = 1;
-    } else if(strcmp(id_str, "define") == 0 || strcmp(id_str, "if") == 0 || strcmp(id_str, "fun") == 0) {
-        syntax_err = 1;
-    } else if(strcmp(id_str, "print-num") == 0 || strcmp(id_str, "print-bool") == 0) {
-        syntax_err = 1;
+int find_id_index(char * id_string) {
+    for(int i=0; i<identifier.num_id; i++) {
+        if(strcmp(id_string, identifier.id_arr[i]) == 0) {
+            return i;
+        }
     }
-
-    if(syntax_err == 1) {
-        printf("Syntax Error: ID must not be the same as reserved words!\n");
-    }
+    printf("Error: Can't find a identifier named %s\n", id_string);
+    return -1;
 }
 
 void push(int i, int bool_flag) {   /* i is either INUM or BOOL, which depends on bool_flag */
@@ -448,6 +474,8 @@ int check_type(char *str) {
 }
 
 int main(int argc, char *argv[]) {
+    stack.top = 0;
+    identifier.num_id = 0;
     int i = yyparse();
     //printf("returned value of yyparse() is %d\n", i);
     return(0);

@@ -88,6 +88,15 @@ int isEmpty();
 int isFull();
 int isBool(int);
 
+struct identifier {
+    int num_id;
+    char* id_arr[STACK_SIZE];
+    int* val_ptr_arr[STACK_SIZE];
+    int val_bool_flag[STACK_SIZE];
+};
+struct identifier identifier;
+int find_id_index(char *);
+
 int base_ptr = 0;
 int num_OP(int, int, char *);
 int logic_OP(int, int, char *);
@@ -95,7 +104,7 @@ int logic_OP(int, int, char *);
 int check_type(char *);
 void dump_stack();
 
-#line 99 "./make/parser.tab.c"
+#line 108 "./make/parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -171,12 +180,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 30 "./src/parser.y"
+#line 39 "./src/parser.y"
 
 int ival;
 char *str;
 
-#line 180 "./make/parser.tab.c"
+#line 189 "./make/parser.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -551,16 +560,16 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    47,    47,    48,    48,    49,    50,    51,    52,    61,
-      77,    82,    90,    90,    90,    90,    90,    90,    91,    93,
-      97,    97,    97,    97,    97,    98,    98,    98,   100,   100,
-     106,   106,   112,   112,   118,   118,   124,   124,   130,   130,
-     136,   136,   142,   142,   149,   149,   149,   150,   150,   156,
-     156,   162,   162,   169,   172,   176,   179,   182,   182,   183,
-     186,   189,   192,   192,   193,   199,   203,   203,   220,   228,
-     238
+       0,    56,    56,    57,    57,    58,    59,    60,    61,    70,
+      86,    91,    99,   107,   107,   107,   107,   107,   108,   110,
+     114,   114,   114,   114,   114,   115,   115,   115,   117,   117,
+     123,   123,   129,   129,   135,   135,   141,   141,   147,   147,
+     153,   153,   159,   159,   166,   166,   166,   167,   167,   173,
+     173,   179,   179,   186,   204,   209,   212,   215,   215,   216,
+     219,   222,   225,   225,   226,   232,   236,   236,   253,   261,
+     271
 };
 #endif
 
@@ -1437,43 +1446,43 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 47 "./src/parser.y"
+#line 56 "./src/parser.y"
                  { (yyval.str) = (yyvsp[0].str); }
-#line 1443 "./make/parser.tab.c"
+#line 1452 "./make/parser.tab.c"
     break;
 
   case 3:
-#line 48 "./src/parser.y"
+#line 57 "./src/parser.y"
                      { (yyval.str) = (yyvsp[-1].str); }
-#line 1449 "./make/parser.tab.c"
+#line 1458 "./make/parser.tab.c"
     break;
 
   case 4:
-#line 48 "./src/parser.y"
+#line 57 "./src/parser.y"
                                          { (yyval.str) = (yyvsp[0].str); }
-#line 1455 "./make/parser.tab.c"
+#line 1464 "./make/parser.tab.c"
     break;
 
   case 5:
-#line 49 "./src/parser.y"
+#line 58 "./src/parser.y"
               { (yyval.str) = (yyvsp[0].str); }
-#line 1461 "./make/parser.tab.c"
+#line 1470 "./make/parser.tab.c"
     break;
 
   case 6:
-#line 50 "./src/parser.y"
+#line 59 "./src/parser.y"
                    { (yyval.str) = (yyvsp[0].str); }
-#line 1467 "./make/parser.tab.c"
+#line 1476 "./make/parser.tab.c"
     break;
 
   case 7:
-#line 51 "./src/parser.y"
+#line 60 "./src/parser.y"
                      { (yyval.str) = (yyvsp[0].str); }
-#line 1473 "./make/parser.tab.c"
+#line 1482 "./make/parser.tab.c"
     break;
 
   case 8:
-#line 52 "./src/parser.y"
+#line 61 "./src/parser.y"
                                           {
     (yyval.str) = (yyvsp[-1].str);
     if(check_type("number") == 1) { /* type correct */
@@ -1483,11 +1492,11 @@ yyreduce:
         printf("Type Error: Expect 'number' but got 'boolean'.\n");
     }
 }
-#line 1487 "./make/parser.tab.c"
+#line 1496 "./make/parser.tab.c"
     break;
 
   case 9:
-#line 61 "./src/parser.y"
+#line 70 "./src/parser.y"
                                            {
     (yyval.str) = (yyvsp[-1].str);
     if(check_type("boolean") == 1) { /* type correct */
@@ -1503,22 +1512,22 @@ yyreduce:
         printf("Type Error: Expect 'boolean' but got 'number'.\n");
     }
 }
-#line 1507 "./make/parser.tab.c"
+#line 1516 "./make/parser.tab.c"
     break;
 
   case 10:
-#line 77 "./src/parser.y"
+#line 86 "./src/parser.y"
                {
     (yyval.str) = (yyvsp[0].str);
     int num = atoi((yyvsp[0].str));
     push(num, 0);
     
 }
-#line 1518 "./make/parser.tab.c"
+#line 1527 "./make/parser.tab.c"
     break;
 
   case 11:
-#line 82 "./src/parser.y"
+#line 91 "./src/parser.y"
                {
     (yyval.str) = (yyvsp[0].str);
     if(strcmp((yyvsp[0].str), "#t") == 0) {
@@ -1528,388 +1537,418 @@ yyreduce:
     }
     
 }
-#line 1532 "./make/parser.tab.c"
+#line 1541 "./make/parser.tab.c"
+    break;
+
+  case 12:
+#line 99 "./src/parser.y"
+              {
+    (yyval.str) = (yyvsp[0].str);
+    int index = find_id_index((yyvsp[0].str));
+    if(identifier.val_bool_flag[index]) {
+        push(* identifier.val_ptr_arr[index], 1);
+    } else {
+        push(* identifier.val_ptr_arr[index], 0);
+    }
+}
+#line 1555 "./make/parser.tab.c"
     break;
 
   case 13:
-#line 90 "./src/parser.y"
-                       { (yyval.str) = (yyvsp[0].str); }
-#line 1538 "./make/parser.tab.c"
+#line 107 "./src/parser.y"
+                 { (yyval.str) = (yyvsp[0].str); }
+#line 1561 "./make/parser.tab.c"
     break;
 
   case 14:
-#line 90 "./src/parser.y"
-                                                 {}
-#line 1544 "./make/parser.tab.c"
+#line 107 "./src/parser.y"
+                                           { (yyval.str) = (yyvsp[0].str); }
+#line 1567 "./make/parser.tab.c"
     break;
 
   case 15:
-#line 90 "./src/parser.y"
-                                                              {}
-#line 1550 "./make/parser.tab.c"
+#line 107 "./src/parser.y"
+                                                                  {}
+#line 1573 "./make/parser.tab.c"
     break;
 
   case 16:
-#line 90 "./src/parser.y"
-                                                                            {}
-#line 1556 "./make/parser.tab.c"
+#line 107 "./src/parser.y"
+                                                                                {}
+#line 1579 "./make/parser.tab.c"
     break;
 
   case 17:
-#line 90 "./src/parser.y"
-                                                                                        {}
-#line 1562 "./make/parser.tab.c"
+#line 107 "./src/parser.y"
+                                                                                            {}
+#line 1585 "./make/parser.tab.c"
     break;
 
   case 18:
-#line 91 "./src/parser.y"
+#line 108 "./src/parser.y"
                    {
     
 }
-#line 1570 "./make/parser.tab.c"
+#line 1593 "./make/parser.tab.c"
     break;
 
   case 19:
-#line 93 "./src/parser.y"
+#line 110 "./src/parser.y"
               {
     
 }
-#line 1578 "./make/parser.tab.c"
+#line 1601 "./make/parser.tab.c"
     break;
 
   case 20:
-#line 97 "./src/parser.y"
+#line 114 "./src/parser.y"
                { (yyval.str) = (yyvsp[0].str); }
-#line 1584 "./make/parser.tab.c"
+#line 1607 "./make/parser.tab.c"
     break;
 
   case 21:
-#line 97 "./src/parser.y"
+#line 114 "./src/parser.y"
                                     { (yyval.str) = (yyvsp[0].str); }
-#line 1590 "./make/parser.tab.c"
+#line 1613 "./make/parser.tab.c"
     break;
 
   case 22:
-#line 97 "./src/parser.y"
+#line 114 "./src/parser.y"
                                                             { (yyval.str) = (yyvsp[0].str); }
-#line 1596 "./make/parser.tab.c"
+#line 1619 "./make/parser.tab.c"
     break;
 
   case 23:
-#line 97 "./src/parser.y"
+#line 114 "./src/parser.y"
                                                                                   { (yyval.str) = (yyvsp[0].str); }
-#line 1602 "./make/parser.tab.c"
+#line 1625 "./make/parser.tab.c"
     break;
 
   case 24:
-#line 97 "./src/parser.y"
+#line 114 "./src/parser.y"
                                                                                                          { (yyval.str) = (yyvsp[0].str); }
-#line 1608 "./make/parser.tab.c"
+#line 1631 "./make/parser.tab.c"
     break;
 
   case 25:
-#line 98 "./src/parser.y"
+#line 115 "./src/parser.y"
                   { (yyval.str) = (yyvsp[0].str); }
-#line 1614 "./make/parser.tab.c"
+#line 1637 "./make/parser.tab.c"
     break;
 
   case 26:
-#line 98 "./src/parser.y"
+#line 115 "./src/parser.y"
                                          { (yyval.str) = (yyvsp[0].str); }
-#line 1620 "./make/parser.tab.c"
+#line 1643 "./make/parser.tab.c"
     break;
 
   case 27:
-#line 98 "./src/parser.y"
+#line 115 "./src/parser.y"
                                                               { (yyval.str) = (yyvsp[0].str); }
-#line 1626 "./make/parser.tab.c"
+#line 1649 "./make/parser.tab.c"
     break;
 
   case 28:
-#line 100 "./src/parser.y"
+#line 117 "./src/parser.y"
                  { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1632 "./make/parser.tab.c"
+#line 1655 "./make/parser.tab.c"
     break;
 
   case 29:
-#line 100 "./src/parser.y"
+#line 117 "./src/parser.y"
                                                                                   {
     (yyval.str) = "PLUS";
     int result = num_OP(stack.top, base_ptr, "PLUS");
     base_ptr = pop();
     push(result, 0);
 }
-#line 1643 "./make/parser.tab.c"
+#line 1666 "./make/parser.tab.c"
     break;
 
   case 30:
-#line 106 "./src/parser.y"
+#line 123 "./src/parser.y"
                  { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1649 "./make/parser.tab.c"
+#line 1672 "./make/parser.tab.c"
     break;
 
   case 31:
-#line 106 "./src/parser.y"
+#line 123 "./src/parser.y"
                                                                                  {
     (yyval.str) = "MINUS";
     int result = num_OP(stack.top, base_ptr, "MINUS");
     base_ptr = pop();
     push(result, 0);
 }
-#line 1660 "./make/parser.tab.c"
+#line 1683 "./make/parser.tab.c"
     break;
 
   case 32:
-#line 112 "./src/parser.y"
+#line 129 "./src/parser.y"
                     { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1666 "./make/parser.tab.c"
+#line 1689 "./make/parser.tab.c"
     break;
 
   case 33:
-#line 112 "./src/parser.y"
+#line 129 "./src/parser.y"
                                                                                      {
     (yyval.str) = "MULTIPLY";
     int result = num_OP(stack.top, base_ptr, "MULTIPLY");
     base_ptr = pop();
     push(result, 0);
 }
-#line 1677 "./make/parser.tab.c"
+#line 1700 "./make/parser.tab.c"
     break;
 
   case 34:
-#line 118 "./src/parser.y"
+#line 135 "./src/parser.y"
                     { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1683 "./make/parser.tab.c"
+#line 1706 "./make/parser.tab.c"
     break;
 
   case 35:
-#line 118 "./src/parser.y"
+#line 135 "./src/parser.y"
                                                                                     {
     (yyval.str) = "DIVIDE";
     int result = num_OP(stack.top, base_ptr, "DIVIDE");
     base_ptr = pop();
     push(result, 0);
 }
-#line 1694 "./make/parser.tab.c"
+#line 1717 "./make/parser.tab.c"
     break;
 
   case 36:
-#line 124 "./src/parser.y"
+#line 141 "./src/parser.y"
                     { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1700 "./make/parser.tab.c"
+#line 1723 "./make/parser.tab.c"
     break;
 
   case 37:
-#line 124 "./src/parser.y"
+#line 141 "./src/parser.y"
                                                                                     {
     (yyval.str) = "MODULUS";
     int result = num_OP(stack.top, base_ptr, "MODULUS");
     base_ptr = pop();
     push(result, 0);
 }
-#line 1711 "./make/parser.tab.c"
+#line 1734 "./make/parser.tab.c"
     break;
 
   case 38:
-#line 130 "./src/parser.y"
+#line 147 "./src/parser.y"
                     { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1717 "./make/parser.tab.c"
+#line 1740 "./make/parser.tab.c"
     break;
 
   case 39:
-#line 130 "./src/parser.y"
+#line 147 "./src/parser.y"
                                                                                     {
     (yyval.str) = "GREATER";
     int result = num_OP(stack.top, base_ptr, "GREATER");
     base_ptr = pop();
     push(result, 1);
 }
-#line 1728 "./make/parser.tab.c"
+#line 1751 "./make/parser.tab.c"
     break;
 
   case 40:
-#line 136 "./src/parser.y"
+#line 153 "./src/parser.y"
                     { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1734 "./make/parser.tab.c"
+#line 1757 "./make/parser.tab.c"
     break;
 
   case 41:
-#line 136 "./src/parser.y"
+#line 153 "./src/parser.y"
                                                                                     {
     (yyval.str) = "SMALLER";
     int result = num_OP(stack.top, base_ptr, "SMALLER");
     base_ptr = pop();
     push(result, 1);
 }
-#line 1745 "./make/parser.tab.c"
+#line 1768 "./make/parser.tab.c"
     break;
 
   case 42:
-#line 142 "./src/parser.y"
+#line 159 "./src/parser.y"
                     { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1751 "./make/parser.tab.c"
+#line 1774 "./make/parser.tab.c"
     break;
 
   case 43:
-#line 142 "./src/parser.y"
+#line 159 "./src/parser.y"
                                                                                      {
     (yyval.str) = "EQUAL";
     int result = num_OP(stack.top, base_ptr, "EQUAL");
     base_ptr = pop();
     push(result, 1);
 }
-#line 1762 "./make/parser.tab.c"
+#line 1785 "./make/parser.tab.c"
     break;
 
   case 44:
-#line 149 "./src/parser.y"
+#line 166 "./src/parser.y"
                     { (yyval.str) = (yyvsp[0].str); }
-#line 1768 "./make/parser.tab.c"
+#line 1791 "./make/parser.tab.c"
     break;
 
   case 45:
-#line 149 "./src/parser.y"
+#line 166 "./src/parser.y"
                                          { (yyval.str) = (yyvsp[0].str); }
-#line 1774 "./make/parser.tab.c"
+#line 1797 "./make/parser.tab.c"
     break;
 
   case 46:
-#line 149 "./src/parser.y"
+#line 166 "./src/parser.y"
                                                                { (yyval.str) = (yyvsp[0].str); }
-#line 1780 "./make/parser.tab.c"
+#line 1803 "./make/parser.tab.c"
     break;
 
   case 47:
-#line 150 "./src/parser.y"
+#line 167 "./src/parser.y"
                  { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1786 "./make/parser.tab.c"
+#line 1809 "./make/parser.tab.c"
     break;
 
   case 48:
-#line 150 "./src/parser.y"
+#line 167 "./src/parser.y"
                                                                                   {
     (yyval.str) = "and-OP";
     int result = logic_OP(stack.top, base_ptr, "AND");
     base_ptr = pop();
     push(result, 1);
 }
-#line 1797 "./make/parser.tab.c"
+#line 1820 "./make/parser.tab.c"
     break;
 
   case 49:
-#line 156 "./src/parser.y"
+#line 173 "./src/parser.y"
                  { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1803 "./make/parser.tab.c"
+#line 1826 "./make/parser.tab.c"
     break;
 
   case 50:
-#line 156 "./src/parser.y"
+#line 173 "./src/parser.y"
                                                                                  {
     (yyval.str) = "or-OP";
     int result = logic_OP(stack.top, base_ptr, "OR");
     base_ptr = pop();
     push(result, 1);
 }
-#line 1814 "./make/parser.tab.c"
+#line 1837 "./make/parser.tab.c"
     break;
 
   case 51:
-#line 162 "./src/parser.y"
+#line 179 "./src/parser.y"
                  { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1820 "./make/parser.tab.c"
+#line 1843 "./make/parser.tab.c"
     break;
 
   case 52:
-#line 162 "./src/parser.y"
+#line 179 "./src/parser.y"
                                                                              {
     (yyval.str) = "not-OP";
     int result = logic_OP(stack.top, base_ptr, "NOT");
     base_ptr = pop();
     push(result, 1);
 }
-#line 1831 "./make/parser.tab.c"
+#line 1854 "./make/parser.tab.c"
     break;
 
   case 53:
-#line 169 "./src/parser.y"
+#line 186 "./src/parser.y"
                                        {
-
+    char* id_str = (char *) malloc(sizeof(char) * STACK_SIZE);
+    id_str = (yyvsp[-2].str);
+    identifier.id_arr[identifier.num_id] = id_str;
+    if(isBool(stack.top - 1)) {
+        int* bool = (int *) malloc(sizeof(int));
+        *bool = pop();
+        identifier.val_ptr_arr[identifier.num_id] = bool;
+        identifier.val_bool_flag[identifier.num_id] = 1;
+    } else {
+        int* num = (int *) malloc(sizeof(int));
+        *num = pop();
+        identifier.val_ptr_arr[identifier.num_id] = num;
+        identifier.val_bool_flag[identifier.num_id] = 0;
+    }
+    identifier.num_id++;
+    (yyval.str) = (yyvsp[-2].str);
 }
-#line 1839 "./make/parser.tab.c"
+#line 1877 "./make/parser.tab.c"
     break;
 
   case 54:
-#line 172 "./src/parser.y"
+#line 204 "./src/parser.y"
              {
-
+    
+    (yyval.str) = (yyvsp[0].str);
 }
-#line 1847 "./make/parser.tab.c"
+#line 1886 "./make/parser.tab.c"
     break;
 
   case 55:
-#line 176 "./src/parser.y"
+#line 209 "./src/parser.y"
                                              {
 
 }
-#line 1855 "./make/parser.tab.c"
+#line 1894 "./make/parser.tab.c"
     break;
 
   case 56:
-#line 179 "./src/parser.y"
+#line 212 "./src/parser.y"
                             {
 
 }
-#line 1863 "./make/parser.tab.c"
+#line 1902 "./make/parser.tab.c"
     break;
 
   case 59:
-#line 183 "./src/parser.y"
+#line 216 "./src/parser.y"
                {
 
 }
-#line 1871 "./make/parser.tab.c"
+#line 1910 "./make/parser.tab.c"
     break;
 
   case 60:
-#line 186 "./src/parser.y"
+#line 219 "./src/parser.y"
                                       {
 
 }
-#line 1879 "./make/parser.tab.c"
+#line 1918 "./make/parser.tab.c"
     break;
 
   case 61:
-#line 189 "./src/parser.y"
+#line 222 "./src/parser.y"
                                        {
 
 }
-#line 1887 "./make/parser.tab.c"
+#line 1926 "./make/parser.tab.c"
     break;
 
   case 64:
-#line 193 "./src/parser.y"
+#line 226 "./src/parser.y"
               {
 
 }
-#line 1895 "./make/parser.tab.c"
+#line 1934 "./make/parser.tab.c"
     break;
 
   case 65:
-#line 199 "./src/parser.y"
+#line 232 "./src/parser.y"
               {
 
 }
-#line 1903 "./make/parser.tab.c"
+#line 1942 "./make/parser.tab.c"
     break;
 
   case 66:
-#line 203 "./src/parser.y"
+#line 236 "./src/parser.y"
                  { push(base_ptr, 0); base_ptr = stack.top; }
-#line 1909 "./make/parser.tab.c"
+#line 1948 "./make/parser.tab.c"
     break;
 
   case 67:
-#line 203 "./src/parser.y"
+#line 236 "./src/parser.y"
                                                                                                    {
     int isElse_exp_bool = pop();
     int isThen_exp_bool = pop();
@@ -1927,11 +1966,11 @@ yyreduce:
             push((yyvsp[-1].ival), 0);
     }
 }
-#line 1931 "./make/parser.tab.c"
+#line 1970 "./make/parser.tab.c"
     break;
 
   case 68:
-#line 220 "./src/parser.y"
+#line 253 "./src/parser.y"
                {
     if(isBool(stack.top - 1)) 
         ;
@@ -1940,11 +1979,11 @@ yyreduce:
         return -1;
     }
 }
-#line 1944 "./make/parser.tab.c"
+#line 1983 "./make/parser.tab.c"
     break;
 
   case 69:
-#line 228 "./src/parser.y"
+#line 261 "./src/parser.y"
                {
     if(isBool(stack.top - 1)) {
         (yyval.ival) = pop();
@@ -1955,11 +1994,11 @@ yyreduce:
         push(0, 1);
     }
 }
-#line 1959 "./make/parser.tab.c"
+#line 1998 "./make/parser.tab.c"
     break;
 
   case 70:
-#line 238 "./src/parser.y"
+#line 271 "./src/parser.y"
                {
     if(isBool(stack.top - 1)) {
         (yyval.ival) = pop();
@@ -1970,11 +2009,11 @@ yyreduce:
         push(0, 1);
     }
 }
-#line 1974 "./make/parser.tab.c"
+#line 2013 "./make/parser.tab.c"
     break;
 
 
-#line 1978 "./make/parser.tab.c"
+#line 2017 "./make/parser.tab.c"
 
       default: break;
     }
@@ -2206,25 +2245,20 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 249 "./src/parser.y"
+#line 282 "./src/parser.y"
 
 
 void yyerror (const char *message) {
     fprintf (stderr, "%s\n",message);
 }
-int reserve_check(char *id_str) {
-    int syntax_err = 0;
-    if(strcmp(id_str, "mod") == 0 || strcmp(id_str, "and") == 0 || strcmp(id_str, "or") == 0 || strcmp(id_str, "not") == 0) {
-        syntax_err = 1;
-    } else if(strcmp(id_str, "define") == 0 || strcmp(id_str, "if") == 0 || strcmp(id_str, "fun") == 0) {
-        syntax_err = 1;
-    } else if(strcmp(id_str, "print-num") == 0 || strcmp(id_str, "print-bool") == 0) {
-        syntax_err = 1;
+int find_id_index(char * id_string) {
+    for(int i=0; i<identifier.num_id; i++) {
+        if(strcmp(id_string, identifier.id_arr[i]) == 0) {
+            return i;
+        }
     }
-
-    if(syntax_err == 1) {
-        printf("Syntax Error: ID must not be the same as reserved words!\n");
-    }
+    printf("Error: Can't find a identifier named %s\n", id_string);
+    return -1;
 }
 
 void push(int i, int bool_flag) {   /* i is either INUM or BOOL, which depends on bool_flag */
@@ -2409,6 +2443,8 @@ int check_type(char *str) {
 }
 
 int main(int argc, char *argv[]) {
+    stack.top = 0;
+    identifier.num_id = 0;
     int i = yyparse();
     //printf("returned value of yyparse() is %d\n", i);
     return(0);
