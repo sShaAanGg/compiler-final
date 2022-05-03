@@ -19,6 +19,15 @@ int isEmpty();
 int isFull();
 int isBool(int);
 
+struct identifier {
+    int num_id;
+    char* id_arr[STACK_SIZE];
+    int* val_ptr_arr[STACK_SIZE];
+    int val_bool_flag[STACK_SIZE];
+};
+struct identifier identifier;
+int find_id_index(char *);
+
 int base_ptr = 0;
 int num_OP(int, int, char *);
 int logic_OP(int, int, char *);
@@ -28,6 +37,7 @@ void dump_stack();
 %}
 
 %union{
+int ival;
 char *str;
 }
 
@@ -37,8 +47,9 @@ char *str;
 %token <str> ADD SUB MUL DIV MOD GRT SML EQL AND OR NOT 
 %token <str> BOOL INUM 
 
-%type <str> EXP NUM-OP PLUS MINUS MULTIPLY DIVIDE MODULUS GREATER SMALLER EQUAL VAR FUN-EXP FUN-CALL if-EXP
+%type <str> EXP NUM-OP PLUS MINUS MULTIPLY DIVIDE MODULUS GREATER SMALLER EQUAL VAR FUN-EXP FUN-CALL if-EXP TEST-EXP
 %type <str> PROGRAM STMTs STMT PRINT-STMT DEF-STMT LOGICAL-OP and-OP or-OP not-OP
+%type <ival> THEN-EXP ELSE-EXP
 
 %nonassoc LPAREN RPAREN
 %%
@@ -84,8 +95,15 @@ EXP     : INUM {
     } else {
         push(0, 1);
     }
-    
-}       | VAR | NUM-OP { $$ = $1; } | LOGICAL-OP {} | FUN-EXP {} | FUN-CALL {} | if-EXP {} ;
+}       | VAR {
+    $$ = $1;
+    int index = find_id_index($1);
+    if(identifier.val_bool_flag[index]) {
+        push(* identifier.val_ptr_arr[index], 1);
+    } else {
+        push(* identifier.val_ptr_arr[index], 0);
+    }
+}       | NUM-OP { $$ = $1; } | LOGICAL-OP { $$ = $1; } | FUN-EXP {} | FUN-CALL {} | if-EXP {} ;
 EXPs    : EXP EXPs {
     
 }       | EXP {
@@ -165,10 +183,25 @@ not-OP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } NOT EXP RPAREN {
 }       ;
 
 DEF-STMT : LPAREN define ID EXP RPAREN {
-
+    char* id_str = (char *) malloc(sizeof(char) * STACK_SIZE);
+    id_str = $3;
+    identifier.id_arr[identifier.num_id] = id_str;
+    if(isBool(stack.top - 1)) {
+        int* bool = (int *) malloc(sizeof(int));
+        *bool = pop();
+        identifier.val_ptr_arr[identifier.num_id] = bool;
+        identifier.val_bool_flag[identifier.num_id] = 1;
+    } else {
+        int* num = (int *) malloc(sizeof(int));
+        *num = pop();
+        identifier.val_ptr_arr[identifier.num_id] = num;
+        identifier.val_bool_flag[identifier.num_id] = 0;
+    }
+    identifier.num_id++;
+    $$ = $3;
 }       ;
 VAR     : ID {
-
+    $$ = $1;
 }       ;
 
 FUN-EXP : LPAREN fun FUN-IDs FUN-BODY RPAREN {
@@ -198,17 +231,50 @@ FUN-NAME : ID {
 
 }       ;
 
-if-EXP  : LPAREN IF TEST-EXP THEN-EXP ELSE-EXP RPAREN {
-
+if-EXP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } IF TEST-EXP THEN-EXP ELSE-EXP RPAREN {
+    int isElse_exp_bool = pop();
+    int isThen_exp_bool = pop();
+    int test_exp_val = pop();
+    base_ptr = pop();
+    if(test_exp_val) {
+        if(isThen_exp_bool == 1)
+            push($5, 1);
+        else
+            push($5, 0);
+    } else {
+        if(isElse_exp_bool == 1)
+            push($6, 1);
+        else
+            push($6, 0);
+    }
 }        ;
 TEST-EXP : EXP {
-
+    if(isBool(stack.top - 1)) 
+        ;
+    else {
+        printf("Type Error: Expect 'boolean' from TEST-EXP but got 'number'.\n");
+        return -1;
+    }
 }        ;
 THEN-EXP : EXP {
-
+    if(isBool(stack.top - 1)) {
+        $$ = pop();
+        push(1, 1);
+    }
+    else {
+        $$ = pop();
+        push(0, 1);
+    }
 }        ;
 ELSE-EXP : EXP {
-
+    if(isBool(stack.top - 1)) {
+        $$ = pop();
+        push(1, 1);
+    }
+    else {
+        $$ = pop();
+        push(0, 1);
+    }
 }        ;
 
 %%
@@ -216,19 +282,14 @@ ELSE-EXP : EXP {
 void yyerror (const char *message) {
     fprintf (stderr, "%s\n",message);
 }
-int reserve_check(char *id_str) {
-    int syntax_err = 0;
-    if(strcmp(id_str, "mod") == 0 || strcmp(id_str, "and") == 0 || strcmp(id_str, "or") == 0 || strcmp(id_str, "not") == 0) {
-        syntax_err = 1;
-    } else if(strcmp(id_str, "define") == 0 || strcmp(id_str, "if") == 0 || strcmp(id_str, "fun") == 0) {
-        syntax_err = 1;
-    } else if(strcmp(id_str, "print-num") == 0 || strcmp(id_str, "print-bool") == 0) {
-        syntax_err = 1;
+int find_id_index(char * id_string) {
+    for(int i=0; i<identifier.num_id; i++) {
+        if(strcmp(id_string, identifier.id_arr[i]) == 0) {
+            return i;
+        }
     }
-
-    if(syntax_err == 1) {
-        printf("Syntax Error: ID must not be the same as reserved words!\n");
-    }
+    printf("Error: Can't find a identifier named %s\n", id_string);
+    return -1;
 }
 
 void push(int i, int bool_flag) {   /* i is either INUM or BOOL, which depends on bool_flag */
@@ -413,6 +474,8 @@ int check_type(char *str) {
 }
 
 int main(int argc, char *argv[]) {
+    stack.top = 0;
+    identifier.num_id = 0;
     int i = yyparse();
     //printf("returned value of yyparse() is %d\n", i);
     return(0);
