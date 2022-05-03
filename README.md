@@ -11,4 +11,3 @@ Enter **bin/interpreter** in the shell to execute the MiniLisp interpreter.
 1. bison
 2. flex
 3. gcc
-
