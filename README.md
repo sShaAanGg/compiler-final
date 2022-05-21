@@ -1,13 +1,13 @@
 # Compiler final project
-My MiniLisp interpreter for compiler final project
+My MiniLisp interpreter for compiler final project at NCU
 
-yacc and lex source code is in **src** folder and the MiniLisp interpreter is in **bin** folder.
+### Compilation
+Enter **make build** in the shell to compile the source code and link the object files; it will generate the binary interpreter into **bin** directory.
 
-Enter **make/make.sh** in the shell to compile the source code; it will generate the binary interpreter into **bin** folder.
+### Execution
+Enter **bin/interpreter** to execute the MiniLisp interpreter.
 
-Enter **bin/interpreter** in the shell to execute the MiniLisp interpreter.
-
-## Prerequisite
-1. bison
-2. flex
+## Prerequisites
+1. bison ((GNU Bison) 3.5.1)
+2. flex (2.6.4)
 3. gcc
