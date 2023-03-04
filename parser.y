@@ -3,6 +3,11 @@
 #include <string.h>
 #include <stdlib.h>
 #define STACK_SIZE 1000
+#define TYPE_0_POPnPUSH     base_ptr = pop(); \
+                            push(result, 0);
+
+#define TYPE_1_POPnPUSH     base_ptr = pop(); \
+                            push(result, 1);
 
 void yyerror(const char *message);
 int reserve_check(char *);
@@ -116,70 +121,59 @@ NUM-OP  : PLUS { $$ = $1; } | MINUS { $$ = $1; } | MULTIPLY { $$ = $1; } | DIVID
 PLUS    : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } ADD EXP EXPs RPAREN {
     $$ = "PLUS";
     int result = num_OP(stack.top, base_ptr, "PLUS");
-    base_ptr = pop();
-    push(result, 0);
+    TYPE_0_POPnPUSH;
 }          ;
 MINUS   : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } SUB EXP EXP RPAREN {
     $$ = "MINUS";
     int result = num_OP(stack.top, base_ptr, "MINUS");
-    base_ptr = pop();
-    push(result, 0);
+    TYPE_0_POPnPUSH;
 }          ;
 MULTIPLY   : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } MUL EXP EXPs RPAREN {
     $$ = "MULTIPLY";
     int result = num_OP(stack.top, base_ptr, "MULTIPLY");
-    base_ptr = pop();
-    push(result, 0);
+    TYPE_0_POPnPUSH;
 }          ;
 DIVIDE     : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } DIV EXP EXP RPAREN {
     $$ = "DIVIDE";
     int result = num_OP(stack.top, base_ptr, "DIVIDE");
-    base_ptr = pop();
-    push(result, 0);
+    TYPE_0_POPnPUSH;
 }          ;
 MODULUS    : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } MOD EXP EXP RPAREN {
     $$ = "MODULUS";
     int result = num_OP(stack.top, base_ptr, "MODULUS");
-    base_ptr = pop();
-    push(result, 0);
+    TYPE_0_POPnPUSH;
 }          ;
 GREATER    : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } GRT EXP EXP RPAREN {
     $$ = "GREATER";
     int result = num_OP(stack.top, base_ptr, "GREATER");
-    base_ptr = pop();
-    push(result, 1);
+    TYPE_1_POPnPUSH;
 }          ;
 SMALLER    : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } SML EXP EXP RPAREN {
     $$ = "SMALLER";
     int result = num_OP(stack.top, base_ptr, "SMALLER");
-    base_ptr = pop();
-    push(result, 1);
+    TYPE_1_POPnPUSH;
 }          ;
 EQUAL      : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } EQL EXP EXPs RPAREN {
     $$ = "EQUAL";
     int result = num_OP(stack.top, base_ptr, "EQUAL");
-    base_ptr = pop();
-    push(result, 1);
+    TYPE_1_POPnPUSH;
 }          ;
 
 LOGICAL-OP : and-OP { $$ = $1; } | or-OP { $$ = $1; } | not-OP { $$ = $1; } ;
 and-OP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } AND EXP EXPs RPAREN {
     $$ = "and-OP";
     int result = logic_OP(stack.top, base_ptr, "AND");
-    base_ptr = pop();
-    push(result, 1);
+    TYPE_1_POPnPUSH;
 }       ;
 or-OP   : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } OR EXP EXPs RPAREN {
     $$ = "or-OP";
     int result = logic_OP(stack.top, base_ptr, "OR");
-    base_ptr = pop();
-    push(result, 1);
+    TYPE_1_POPnPUSH;
 }       ;
 not-OP  : LPAREN { push(base_ptr, 0); base_ptr = stack.top; } NOT EXP RPAREN {
     $$ = "not-OP";
     int result = logic_OP(stack.top, base_ptr, "NOT");
-    base_ptr = pop();
-    push(result, 1);
+    TYPE_1_POPnPUSH;
 }       ;
 
 DEF-STMT : LPAREN define ID EXP RPAREN {
@@ -282,6 +276,7 @@ ELSE-EXP : EXP {
 void yyerror (const char *message) {
     fprintf (stderr, "%s\n",message);
 }
+
 int find_id_index(char * id_string) {
     for(int i=0; i<identifier.num_id; i++) {
         if(strcmp(id_string, identifier.id_arr[i]) == 0) {
@@ -304,10 +299,11 @@ void push(int i, int bool_flag) {   /* i is either INUM or BOOL, which depends o
             stack.top++;
         }
     } else {
-        printf("Runtime Error: STACK OVERFLOW! (The size of stack is of 4000 bytes. That is, 1000 int\n");
+        printf("Runtime Error: STACK OVERFLOW! (The size of stack is of 4000 bytes. That is, 1000 integers)\n");
         return;
     }
 }
+
 int pop() {
     if(!isEmpty()) {
         int temp;
@@ -324,18 +320,21 @@ int pop() {
         return -1;
     }
 }
+
 int isEmpty() {
     if(stack.top == 0)
         return 1;
     else
         return 0;
 }
+
 int isFull() {
     if(stack.top == STACK_SIZE)
         return 1;
     else
         return 0;
 }
+
 int isBool(int index) {
     if(stack.arr_bool_flag[index] == 1) {
         return 1;
